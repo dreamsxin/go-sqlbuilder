@@ -16,6 +16,8 @@ import (
 type Args struct {
 	// The default flavor used by `Args#Compile`
 	Flavor Flavor
+	// When OmitEmpty is true, empty values are ignored
+	OmitEmpty bool
 
 	args         []interface{}
 	namedArgs    map[string]int

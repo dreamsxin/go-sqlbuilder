@@ -6,6 +6,7 @@ package sqlbuilder
 import (
 	"fmt"
 	"strings"
+	"reflect"
 )
 
 // Cond provides several helper methods to build conditions.
@@ -15,6 +16,11 @@ type Cond struct {
 
 // Equal represents "field = value".
 func (c *Cond) Equal(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s = %s", Escape(field), c.Args.Add(value))
 }
 
@@ -25,6 +31,11 @@ func (c *Cond) E(field string, value interface{}) string {
 
 // NotEqual represents "field != value".
 func (c *Cond) NotEqual(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s <> %s", Escape(field), c.Args.Add(value))
 }
 
@@ -35,6 +46,11 @@ func (c *Cond) NE(field string, value interface{}) string {
 
 // GreaterThan represents "field > value".
 func (c *Cond) GreaterThan(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s > %s", Escape(field), c.Args.Add(value))
 }
 
@@ -45,6 +61,11 @@ func (c *Cond) G(field string, value interface{}) string {
 
 // GreaterEqualThan represents "field >= value".
 func (c *Cond) GreaterEqualThan(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s >= %s", Escape(field), c.Args.Add(value))
 }
 
@@ -55,6 +76,11 @@ func (c *Cond) GE(field string, value interface{}) string {
 
 // LessThan represents "field < value".
 func (c *Cond) LessThan(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s < %s", Escape(field), c.Args.Add(value))
 }
 
@@ -65,6 +91,11 @@ func (c *Cond) L(field string, value interface{}) string {
 
 // LessEqualThan represents "field <= value".
 func (c *Cond) LessEqualThan(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s <= %s", Escape(field), c.Args.Add(value))
 }
 
@@ -75,6 +106,17 @@ func (c *Cond) LE(field string, value interface{}) string {
 
 // In represents "field IN (value...)".
 func (c *Cond) In(field string, value ...interface{}) string {
+	if c.Args.OmitEmpty {
+		c := 0
+		for _, v := range value {
+			if !reflect.ValueOf(v).IsZero() {
+				c++
+			}
+		}
+		if c == 0 {
+			return ""
+		}
+	}
 	vs := make([]string, 0, len(value))
 
 	for _, v := range value {
@@ -86,6 +128,17 @@ func (c *Cond) In(field string, value ...interface{}) string {
 
 // NotIn represents "field NOT IN (value...)".
 func (c *Cond) NotIn(field string, value ...interface{}) string {
+	if c.Args.OmitEmpty {
+		c := 0
+		for _, v := range value {
+			if !reflect.ValueOf(v).IsZero() {
+				c++
+			}
+		}
+		if c == 0 {
+			return ""
+		}
+	}
 	vs := make([]string, 0, len(value))
 
 	for _, v := range value {
@@ -97,11 +150,21 @@ func (c *Cond) NotIn(field string, value ...interface{}) string {
 
 // Like represents "field LIKE value".
 func (c *Cond) Like(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s LIKE %s", Escape(field), c.Args.Add(value))
 }
 
 // NotLike represents "field NOT LIKE value".
 func (c *Cond) NotLike(field string, value interface{}) string {
+	if c.Args.OmitEmpty {
+		if reflect.ValueOf(value).IsZero() {
+			return ""
+		}
+	}
 	return fmt.Sprintf("%s NOT LIKE %s", Escape(field), c.Args.Add(value))
 }
 
@@ -127,11 +190,33 @@ func (c *Cond) NotBetween(field string, lower, upper interface{}) string {
 
 // Or represents OR logic like "expr1 OR expr2 OR expr3".
 func (c *Cond) Or(orExpr ...string) string {
+	if c.Args.OmitEmpty {
+		c := 0
+		for _, v := range orExpr {
+			if (v != "") {
+				c++
+			}
+		}
+		if c == 0 {
+			return ""
+		}
+	}
 	return fmt.Sprintf("(%s)", strings.Join(orExpr, " OR "))
 }
 
 // And represents AND logic like "expr1 AND expr2 AND expr3".
 func (c *Cond) And(andExpr ...string) string {
+	if c.Args.OmitEmpty {
+		c := 0
+		for _, v := range andExpr {
+			if (v != "") {
+				c++
+			}
+		}
+		if c == 0 {
+			return ""
+		}
+	}
 	return fmt.Sprintf("(%s)", strings.Join(andExpr, " AND "))
 }
 

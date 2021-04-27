@@ -139,8 +139,22 @@ func (sb *SelectBuilder) JoinWithOption(option JoinOption, table string, onExpr 
 
 // Where sets expressions of WHERE in SELECT.
 func (sb *SelectBuilder) Where(andExpr ...string) *SelectBuilder {
-	sb.whereExprs = append(sb.whereExprs, andExpr...)
-	sb.marker = selectMarkerAfterWhere
+	if sb.args.OmitEmpty {
+		c := 0
+		for _, v := range andExpr {
+			if (v == "") {
+				continue
+			}
+			sb.whereExprs = append(sb.whereExprs, v)
+			c++
+		}
+		if c > 0 {
+			sb.marker = selectMarkerAfterWhere
+		}
+	} else {
+		sb.whereExprs = append(sb.whereExprs, andExpr...)
+		sb.marker = selectMarkerAfterWhere
+	}
 	return sb
 }
 
@@ -329,6 +343,13 @@ func (sb *SelectBuilder) BuildWithFlavor(flavor Flavor, initialArg ...interface{
 func (sb *SelectBuilder) SetFlavor(flavor Flavor) (old Flavor) {
 	old = sb.args.Flavor
 	sb.args.Flavor = flavor
+	return
+}
+
+// SetOmitEmpty sets the omitempty of compiled sql.
+func (sb *SelectBuilder) SetOmitEmpty(omitempty bool) (old bool) {
+	old = sb.args.OmitEmpty
+	sb.args.OmitEmpty = omitempty
 	return
 }
 
