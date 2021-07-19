@@ -178,6 +178,10 @@ func (sb *SelectBuilder) OrderBy(col ...string) *SelectBuilder {
 	sb.marker = selectMarkerAfterOrderBy
 	return sb
 }
+func (sb *SelectBuilder) ClearOrderBy() *SelectBuilder {
+	sb.orderByCols = []string{}
+	return sb
+}
 
 // Asc sets order of ORDER BY to ASC.
 func (sb *SelectBuilder) Asc() *SelectBuilder {
