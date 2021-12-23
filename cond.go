@@ -126,6 +126,40 @@ func (c *Cond) In(field string, value ...interface{}) string {
 	return fmt.Sprintf("%s IN (%s)", Escape(field), strings.Join(vs, ", "))
 }
 
+func (c *Cond) InWithString(field string, value []string) string {
+	if c.Args.OmitEmpty {
+		c := 0
+		for _, v := range value {
+			if v != "" {
+				c++
+			}
+		}
+		if c == 0 {
+			return ""
+		}
+	}
+	vs := make([]string, 0, len(value))
+
+	for _, v := range value {
+		vs = append(vs, c.Args.Add(v))
+	}
+
+	return fmt.Sprintf("%s IN (%s)", Escape(field), strings.Join(vs, ", "))
+}
+
+func (c *Cond) InWithInt(field string, value []int) string {
+	if c.Args.OmitEmpty && len(value) <= 0 {
+		return ""
+	}
+	vs := make([]string, 0, len(value))
+
+	for _, v := range value {
+		vs = append(vs, c.Args.Add(v))
+	}
+
+	return fmt.Sprintf("%s IN (%s)", Escape(field), strings.Join(vs, ", "))
+}
+
 // NotIn represents "field NOT IN (value...)".
 func (c *Cond) NotIn(field string, value ...interface{}) string {
 	if c.Args.OmitEmpty {
