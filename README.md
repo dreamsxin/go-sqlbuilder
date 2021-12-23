@@ -56,6 +56,7 @@ sb := sqlbuilder.NewSelectBuilder()
 sb.Select("id", "name", sb.As("COUNT(*)", "c"))
 sb.From("user")
 sb.Where(sb.In("status", 1, 2, 5))
+//sb.Where(sb.InWithInt("status", []int{1, 2, 5}))
 
 sql, args := sb.Build()
 fmt.Println(sql)
